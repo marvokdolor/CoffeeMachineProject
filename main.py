@@ -7,9 +7,12 @@ def enough_ingredients(drink: str) -> bool:
     for item in resources:
         # To handle missing milk key for espresso
         try:
-            return MENU[drink]['ingredients'][item] <= resources[item]
+            if MENU[drink]['ingredients'][item] > resources[item]:
+                print(f"Sorry, not enough {item}.")
+                return False
         except KeyError:
             pass
+    return True
 
 
 def manage_deposits(drink: str) -> str:
@@ -46,28 +49,25 @@ profits = 0
 print(f"{logo}espresso: $1.50 latte: $2.50 cappuccino: $3.00\n")
 
 while machine_on:
-    available_drinks = [drink for drink in MENU if enough_ingredients(drink)]
-    # DRINK_CHOICE = input("What would you like? (espresso - $1.50 / latte - $2.50 / cappuccino - $3): ").lower()
-    DRINK_CHOICE = input(f"What would you like? ({'/'.join(available_drinks)}): ").lower()
 
-    if DRINK_CHOICE == "off":
+    choice = input(f"What would you like? (espresso/latte/cappuccino): ").lower()
+
+    if choice == "off":
         print("Goodbye.")
         machine_on = False
-    elif DRINK_CHOICE == "report":
+    elif choice == "report":
         for item in resources:
             print(f"{item.capitalize()}: {resources[item]}")
         print(f"Money: ${'{:.2f}'.format(profits)}")
-    elif DRINK_CHOICE == "espresso" or DRINK_CHOICE == "latte" or DRINK_CHOICE == "cappuccino":
-        if enough_ingredients(DRINK_CHOICE):
-            print(manage_deposits(DRINK_CHOICE))
-            manage_ingredients(DRINK_CHOICE)
+    elif choice == "espresso" or choice == "latte" or choice == "cappuccino":
+        if enough_ingredients(choice):
+            print(manage_deposits(choice))
+            manage_ingredients(choice)
             # Pocket the cash
-            profits += MENU[DRINK_CHOICE]["cost"]
+            profits += MENU[choice]["cost"]
         else:
-            print(f"Sorry, not enough ingredients.")
             available_drinks = [drink for drink in MENU if enough_ingredients(drink)]
-            print(f"""Only {available_drinks} are available.\n(Psst...if that's an empty list, I recommend responding 
+            print(f"""Only {available_drinks} are available.\n(Psst...if that's an empty list, I recommend responding
             with 'off' to the next prompt.)""")
-        #TODO specify what is insufficient. Might require a refactor of enough_ingredients.
     else:
-        print(f"I'm sorry I'm not sure what you mean by: '{DRINK_CHOICE}.' Let's try that again.")
+        print(f"I'm sorry I'm not sure what you mean by: '{choice}.' Let's try that again.")
